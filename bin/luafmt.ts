@@ -54,7 +54,7 @@ function printFormattedDocument(filename: string, originalDocument: string, form
 
 program
     .version(pkg.version)
-    .usage('[options] [file]')
+    .usage('[options] [file...]')
     .option('--stdin', 'Read code from stdin')
     .option('-l, --line-width <width>', 'Maximum length of a line before it will be wrapped',
     myParseInt, defaultOptions.lineWidth)
@@ -94,20 +94,23 @@ if (program.stdin) {
         process.exit(1);
     }
 
-    const filename = program.args[0];
-    let input = '';
+    for (const filename of program.args) {
+        console.error('Formatting', filename, '...');
 
-    try {
-        input = readFileSync(filename).toString();
-    } catch (err) {
-        printError(filename, err);
-    }
+        let input = '';
 
-    try {
-        const formatted = formatText(input, customOptions);
+        try {
+            input = readFileSync(filename).toString();
+        } catch (err) {
+            printError(filename, err);
+        }
 
-        printFormattedDocument(filename, input, formatted, customOptions);
-    } catch (err) {
-        printError(filename, err);
+        try {
+            const formatted = formatText(input, customOptions);
+
+            printFormattedDocument(filename, input, formatted, customOptions);
+        } catch (err) {
+            printError(filename, err);
+        }
     }
 }
